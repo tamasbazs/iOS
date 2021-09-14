@@ -62,19 +62,19 @@ class SaveBookmarkActivity: UIActivity {
         guard let bookmark = bookmark else {
             return nil
         }
-
-        if bookmarksManager.contains(url: bookmark.url) {
-            ActionMessageView.present(message: UserText.webBookmarkAlreadySaved)
-            return nil
-        }
-
-        if isFavorite {
-            bookmarksManager.save(favorite: bookmark)
-            ActionMessageView.present(message: UserText.webSaveFavoriteDone)
-        } else {
-            bookmarksManager.save(bookmark: bookmark)
-            ActionMessageView.present(message: UserText.webSaveBookmarkDone)
-        }
+        //TODO
+//        if bookmarksManager.contains(url: bookmark.url) {
+//            ActionMessageView.present(message: UserText.webBookmarkAlreadySaved)
+//            return nil
+//        }
+//
+//        if isFavorite {
+//            bookmarksManager.save(favorite: bookmark)
+//            ActionMessageView.present(message: UserText.webSaveFavoriteDone)
+//        } else {
+//            bookmarksManager.save(bookmark: bookmark)
+//            ActionMessageView.present(message: UserText.webSaveBookmarkDone)
+//        }
         return nil
     }
 }

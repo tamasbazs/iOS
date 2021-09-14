@@ -29,19 +29,20 @@ extension TabViewController {
             return
         }
 
-        let bookmarksManager = BookmarksManager()
-        guard !bookmarksManager.contains(url: link.url) else {
-            ActionMessageView.present(message: UserText.webBookmarkAlreadySaved)
-            return
-        }
-
-        if favorite {
-            bookmarksManager.save(favorite: link)
-            ActionMessageView.present(message: UserText.webSaveFavoriteDone)
-        } else {
-            bookmarksManager.save(bookmark: link)
-            ActionMessageView.present(message: UserText.webSaveBookmarkDone)
-        }
+        //TODO
+//        let bookmarksManager = BookmarksManager()
+//        guard !bookmarksManager.contains(url: link.url) else {
+//            ActionMessageView.present(message: UserText.webBookmarkAlreadySaved)
+//            return
+//        }
+//
+//        if favorite {
+//            bookmarksManager.save(favorite: link)
+//            ActionMessageView.present(message: UserText.webSaveFavoriteDone)
+//        } else {
+//            bookmarksManager.save(bookmark: link)
+//            ActionMessageView.present(message: UserText.webSaveBookmarkDone)
+//        }
 
     }
 }

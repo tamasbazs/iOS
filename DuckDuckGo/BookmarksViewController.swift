@@ -30,7 +30,7 @@ class BookmarksViewController: UITableViewController {
     private var searchController: UISearchController?
     weak var delegate: BookmarksDelegate?
     
-    fileprivate var dataSource = DefaultBookmarksDataSource()
+    fileprivate var dataSource: MainBookmarksViewDataSource = DefaultBookmarksDataSource()
     fileprivate var searchDataSource = SearchBookmarksDataSource()
     
     fileprivate var onDidAppearAction: () -> Void = {}
@@ -55,23 +55,31 @@ class BookmarksViewController: UITableViewController {
     }
     
     func openEditFormWhenPresented(link: Link) {
-        onDidAppearAction = { [weak self] in
-            guard let strongSelf = self,
-                  let index = strongSelf.dataSource.bookmarksManager.indexOfBookmark(url: link.url) else { return }
-            
-            let indexPath = IndexPath(row: index, section: 1)
-            strongSelf.tableView.scrollToRow(at: indexPath, at: .middle, animated: true)
-            strongSelf.showEditBookmarkAlert(for: indexPath)
-        }
+        //TODO show new edit screen
+//        onDidAppearAction = { [weak self] in
+//            guard let strongSelf = self,
+//                  let index = strongSelf.dataSource.bookmarksManager.indexOfBookmark(url: link.url) else { return }
+//
+//            let indexPath = IndexPath(row: index, section: 1)
+//            strongSelf.tableView.scrollToRow(at: indexPath, at: .middle, animated: true)
+//            strongSelf.showEditBookmarkAlert(for: indexPath)
+//        }
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard let item = currentDataSource.item(at: indexPath) else { return }
+        
         if tableView.isEditing {
-            //TODO replace with edit screen
-        } else if let item = currentDataSource.item(at: indexPath)?.item {
+            if let bookmark = item as? Bookmark {
+                // TODO
+            } else if let folder = item as? BookmarkFolder {
+                performSegue(withIdentifier: "AddBookmarksFolder", sender: folder)
+            }
+            //TODO should finish editing here? not sure, maybe check with sveta
+        } else {
             if let bookmark = item as? Bookmark {
                 select(bookmark: bookmark)
-            } else if let folder = item as? Folder {
+            } else if let folder = item as? BookmarkFolder {
                 let storyboard = UIStoryboard(name: "Bookmarks", bundle: nil)
                 guard let viewController = storyboard.instantiateViewController(withIdentifier: "BookmarksViewController") as? BookmarksViewController else {
                     return
@@ -139,7 +147,7 @@ class BookmarksViewController: UITableViewController {
         tableView.setContentOffset(CGPoint(x: 0, y: 1), animated: false)
     }
     
-    private var currentDataSource: BookmarksDataSource {
+    private var currentDataSource: MainBookmarksViewDataSource {
         if tableView.dataSource === dataSource {
             return dataSource
         }
@@ -152,8 +160,9 @@ class BookmarksViewController: UITableViewController {
     
     @objc func onExternalDataChange(notification: NSNotification) {
         //TODO when does this happen?
-        guard let source = notification.object as? BookmarkUserDefaults,
-              dataSource.bookmarksManager.dataStore !== source else { return }
+//        guard let source = notification.object as? BookmarkUserDefaults,
+//              dataSource.bookmarksManager.dataStore !== source else { return }
+        //hmm, I don;t think bookmakes manager should really be accessible
 
         tableView.reloadData()
     }
@@ -162,7 +171,7 @@ class BookmarksViewController: UITableViewController {
         self.navigationController?.setToolbarHidden(false, animated: true)
         let flexibleSpace = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace, target: self, action: nil)
         toolbarItems?.insert(flexibleSpace, at: 1)
-        if let dataSourceTitle = dataSource.navigationTitle() {
+        if let dataSourceTitle = dataSource.navigationTitle {
             title = dataSourceTitle
         }
         refreshEditButton()
@@ -223,24 +232,12 @@ class BookmarksViewController: UITableViewController {
         
         enableEditButton()
     }
-
-    fileprivate func showEditBookmarkAlert(for indexPath: IndexPath) {
-        let title = UserText.actionEditBookmark
-        let link = dataSource.link(at: indexPath)
-        let alert = EditBookmarkAlert.buildAlert(
-            title: title,
-            bookmark: link,
-            saveCompletion: { [weak self] (updatedBookmark) in
-                self?.dataSource.tableView(self!.tableView, updateBookmark: updatedBookmark, at: indexPath)
-            }
-        )
-        present(alert, animated: true)
-    }
     
     fileprivate func showShareSheet(for indexPath: IndexPath) {
 
-        if let link = currentDataSource.link(at: indexPath) {
-            presentShareSheet(withItems: [link], fromView: self.view)
+        if let item = currentDataSource.item(at: indexPath) {
+            //TODO
+            //presentShareSheet(withItems: [link], fromView: self.view)
         } else {
             os_log("Invalid share link found", log: generalLog, type: .debug)
         }
@@ -266,6 +263,7 @@ class BookmarksViewController: UITableViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if let viewController = segue.destination as? AddBookmarksFolderViewController {
             viewController.hidesBottomBarWhenPushed = true
+            viewController.existingFolder = sender as? BookmarkFolder
         }
     }
     

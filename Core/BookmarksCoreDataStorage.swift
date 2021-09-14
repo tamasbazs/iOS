@@ -209,3 +209,8 @@ public class BookmarksCoreDataStorage {
     }
 }
 
+//extension BookmarksCoreDataStorage: BookmarkStore {
+//
+//    
+//}
+
