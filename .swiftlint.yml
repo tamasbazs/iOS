@@ -20,5 +20,5 @@ type_name:
 # General Config
 excluded:
   - Carthage
-  - DuckDuckGo
+  - DuckDuckGo/UserText.swift
 
